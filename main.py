@@ -4,7 +4,8 @@ import re
 
 
 def operate():
-    regex_pattern = r"^(import )(.+)(;)$"
+    regex_import_pattern = r"^(import )(.+)(;)$"
+    regex_java_source_code_filename_pattern = r"^.+\.java$"
 
     work_directory = os.getcwd()
 
@@ -12,9 +13,12 @@ def operate():
 
     for root_dir, _, files in os.walk(work_directory):
         for file in files:
-            if ".java" in file:
+            logging.debug("File => {0}".format(file))
+            java_file_matcher = re.match(regex_java_source_code_filename_pattern, file)
+            logging.debug("is java file? {0}".format(java_file_matcher is not None))
+            if java_file_matcher is not None:
                 file_path = root_dir + "/" + file
-                logging.info("Found directory => {0}".format(file_path))
+                logging.info("Found file => {0}".format(file_path))
                 logging.info("Process... {0}".format(file_path))
 
                 with open(file_path) as java_file:
@@ -37,7 +41,7 @@ def operate():
 
                         if "import " in text:
                             logging.debug("It is import statement!!!")
-                            text = re.match(regex_pattern, text).group(2)
+                            text = re.match(regex_import_pattern, text).group(2)
                             if text not in imports:
                                 imports.append(text)
                             continue
